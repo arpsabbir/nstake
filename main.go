@@ -14,11 +14,24 @@ func getNameservers(domain string) ([]string, error) {
     cmd := exec.Command("dig", domain, "NS", "+short")
     output, err := cmd.Output()
     if err != nil {
-        return nil, err
+        return nil, fmt.Errorf("error running dig: %v", err) // More descriptive error
     }
-    nameservers := strings.Split(strings.TrimSpace(string(output)), "\n")
-    fmt.Printf("Extracted nameservers for domain %s: %v\n", domain, nameservers) // Debug info
-    return nameservers, nil
+
+    // Print raw output for debugging
+    rawOutput := string(output)
+    fmt.Printf("Raw output from dig for domain %s:\n%s\n", domain, rawOutput) // Debug info
+
+    nameservers := strings.Split(strings.TrimSpace(rawOutput), "\n")
+    // Filter out any empty strings that may occur
+    var validNS []string
+    for _, ns := range nameservers {
+        if ns != "" {
+            validNS = append(validNS, ns)
+        }
+    }
+
+    fmt.Printf("Extracted nameservers for domain %s: %v\n", domain, validNS) // Debug info
+    return validNS, nil
 }
 
 // Function to resolve domain against a specific nameserver and capture status messages
@@ -27,7 +40,7 @@ func resolveAgainstNameserver(domain, nameserver string) (string, error) {
     cmd := exec.Command("dig", "@"+nameserver, domain)
     output, err := cmd.Output()
     if err != nil {
-        return "", err
+        return "", fmt.Errorf("error running dig: %v", err) // More descriptive error
     }
 
     // Print the output for debugging purposes
@@ -63,7 +76,7 @@ func readDomainsFromFile(filePath string) ([]string, error) {
     fmt.Printf("Reading domains from file: %s\n", filePath) // Debug info
     file, err := os.Open(filePath)
     if err != nil {
-        return nil, err
+        return nil, fmt.Errorf("error opening file: %v", err) // More descriptive error
     }
     defer file.Close()
 
@@ -74,7 +87,7 @@ func readDomainsFromFile(filePath string) ([]string, error) {
     }
 
     if err := scanner.Err(); err != nil {
-        return nil, err
+        return nil, fmt.Errorf("error reading file: %v", err) // More descriptive error
     }
 
     fmt.Printf("Domains read from file: %v\n", domains) // Debug info

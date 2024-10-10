@@ -26,6 +26,10 @@ func resolveAgainstNameserver(domain, nameserver string) (string, error) {
     if err != nil {
         return "", err
     }
+
+    // Print the output for debugging purposes
+    fmt.Printf("Dig output for domain %s and nameserver %s:\n%s\n", domain, nameserver, string(output))
+
     return string(output), nil
 }
 
@@ -94,7 +98,8 @@ func main() {
     providedNameservers := []string{
         "*.example.com.",
         "*.iana-servers.net.",  // Example wildcard nameserver
-        "ns1.example.com.",      // Exact match example
+        "ns1.orangehost.com.",
+        "ns2.orangehost.com.",// Exact match example
     }
 
     // Read the list of domains from the specified file

@@ -36,12 +36,10 @@ func checkForErrors(output string) bool {
 
 // Function to check if the extracted nameserver matches a wildcard nameserver
 func matchesWildcard(extractedNS, providedNS string) bool {
-    // If the providedNS contains '*.', treat it as a wildcard
     if strings.HasPrefix(providedNS, "*.") {
         suffix := strings.TrimPrefix(providedNS, "*.")
         return strings.HasSuffix(extractedNS, suffix)
     }
-    // If no wildcard, check for an exact match
     return extractedNS == providedNS
 }
 
@@ -66,6 +64,23 @@ func readDomainsFromFile(filePath string) ([]string, error) {
     return domains, nil
 }
 
+// Function to identify if a nameserver belongs to a known provider
+func getDNSProvider(nameserver string) string {
+    if strings.Contains(nameserver, "amazonaws.com") {
+        return "AWS Route 53"
+    }
+    if strings.Contains(nameserver, "cloudflare.com") {
+        return "Cloudflare"
+    }
+    if strings.Contains(nameserver, "google.com") {
+        return "Google Cloud DNS"
+    }
+    if strings.Contains(nameserver, "azure-dns.com") {
+        return "Azure DNS"
+    }
+    return "Unknown"
+}
+
 func main() {
     // Check if a file was provided as an argument
     if len(os.Args) < 2 {
@@ -73,35 +88,37 @@ func main() {
         return
     }
 
-    // Get the file path from the first argument
     filePath := os.Args[1]
 
-    // List of provided nameservers to check against (wildcards allowed)
+    // Provided nameservers array including wildcard and exact match examples
     providedNameservers := []string{
+        "*.example.com.",
         "*.iana-servers.net.",  // Example wildcard nameserver
-        "ns1.example.com.",     // Exact match example
+        "ns1.example.com.",      // Exact match example
     }
 
-    // Read domains from the file provided as an argument
+    // Read the list of domains from the specified file
     domains, err := readDomainsFromFile(filePath)
     if err != nil {
         fmt.Println("Error reading file:", err)
         return
     }
 
-    // Loop through each domain from the file
+    // Iterate through each domain and check nameservers
     for _, domain := range domains {
-        // Extract nameservers for each domain
         nameservers, err := getNameservers(domain)
         if err != nil {
             fmt.Println("Error fetching nameservers for domain", domain, ":", err)
             continue
         }
 
-        // Check if any of the extracted nameservers match the provided wildcard nameservers
+        // Check extracted nameservers against provided nameservers
         for _, ns := range nameservers {
             for _, providedNS := range providedNameservers {
                 if matchesWildcard(ns, providedNS) {
+                    provider := getDNSProvider(ns)
+                    fmt.Printf("Nameserver %s is hosted by %s\n", ns, provider)
+
                     // Resolve the domain against the matched nameserver
                     output, err := resolveAgainstNameserver(domain, ns)
                     if err != nil {
@@ -109,9 +126,12 @@ func main() {
                         continue
                     }
 
-                    // Check for SERVFAIL or REFUSED and alert if found
+                    // Check for SERVFAIL or REFUSED
                     if checkForErrors(output) {
                         fmt.Printf("ALERT: Domain %s, Nameserver %s returned SERVFAIL or REFUSED. Potential vulnerability detected!\n", domain, ns)
+                        if provider != "Unknown" {
+                            fmt.Printf("This could be vulnerable to takeover via %s\n", provider)
+                        }
                     }
                 }
             }

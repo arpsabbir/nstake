@@ -8,10 +8,10 @@ import (
     "strings"
 )
 
-// Function to run the 'dig' command and extract nameservers
+// Function to run the 'dig +trace' command and extract nameservers
 func getNameservers(domain string) ([]string, error) {
-    fmt.Printf("Running dig command for NS records on domain: %s\n", domain) // Debug info
-    cmd := exec.Command("dig", domain, "NS", "+short")
+    fmt.Printf("Running dig +trace command for NS records on domain: %s\n", domain) // Debug info
+    cmd := exec.Command("dig", "+trace", domain) // Use dig +trace
     output, err := cmd.Output()
     if err != nil {
         return nil, fmt.Errorf("error running dig: %v", err) // More descriptive error
@@ -19,19 +19,28 @@ func getNameservers(domain string) ([]string, error) {
 
     // Print raw output for debugging
     rawOutput := string(output)
-    fmt.Printf("Raw output from dig for domain %s:\n%s\n", domain, rawOutput) // Debug info
+    fmt.Printf("Raw output from dig +trace for domain %s:\n%s\n", domain, rawOutput) // Debug info
 
-    nameservers := strings.Split(strings.TrimSpace(rawOutput), "\n")
-    // Filter out any empty strings that may occur
-    var validNS []string
-    for _, ns := range nameservers {
-        if ns != "" {
-            validNS = append(validNS, ns)
+    // Parse the output to extract NS records
+    var nameservers []string
+    scanner := bufio.NewScanner(strings.NewReader(rawOutput))
+    for scanner.Scan() {
+        line := scanner.Text()
+        // Example of matching lines that contain NS records
+        if strings.Contains(line, "NS") && strings.Contains(line, domain) {
+            fields := strings.Fields(line)
+            // Assuming the NS record is the last field
+            ns := fields[len(fields)-1]
+            nameservers = append(nameservers, ns)
         }
     }
 
-    fmt.Printf("Extracted nameservers for domain %s: %v\n", domain, validNS) // Debug info
-    return validNS, nil
+    if err := scanner.Err(); err != nil {
+        return nil, fmt.Errorf("error scanning output: %v", err)
+    }
+
+    fmt.Printf("Extracted nameservers for domain %s: %v\n", domain, nameservers) // Debug info
+    return nameservers, nil
 }
 
 // Function to resolve domain against a specific nameserver and capture status messages

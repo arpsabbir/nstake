@@ -10,7 +10,6 @@ import (
 
 // Function to run the 'dig +trace' command and extract nameservers
 func getNameservers(domain string) ([]string, error) {
-    fmt.Printf("Running dig +trace command for NS records on domain: %s\n", domain) // Debug info
     cmd := exec.Command("dig", "+trace", domain) // Use dig +trace
     output, err := cmd.Output()
     if err != nil {
@@ -19,7 +18,6 @@ func getNameservers(domain string) ([]string, error) {
 
     // Print raw output for debugging
     rawOutput := string(output)
-    fmt.Printf("Raw output from dig +trace for domain %s:\n%s\n", domain, rawOutput) // Debug info
 
     // Parse the output to extract NS records
     var nameservers []string
@@ -39,21 +37,16 @@ func getNameservers(domain string) ([]string, error) {
         return nil, fmt.Errorf("error scanning output: %v", err)
     }
 
-    fmt.Printf("Extracted nameservers for domain %s: %v\n", domain, nameservers) // Debug info
     return nameservers, nil
 }
 
 // Function to resolve domain against a specific nameserver and capture status messages
 func resolveAgainstNameserver(domain, nameserver string) (string, error) {
-    fmt.Printf("Resolving domain %s against nameserver %s...\n", domain, nameserver) // Debug info
     cmd := exec.Command("dig", "@"+nameserver, domain)
     output, err := cmd.Output()
     if err != nil {
         return "", fmt.Errorf("error running dig: %v", err) // More descriptive error
     }
-
-    // Print the output for debugging purposes
-    fmt.Printf("Dig output for domain %s and nameserver %s:\n%s\n", domain, nameserver, string(output))
 
     return string(output), nil
 }
@@ -72,17 +65,14 @@ func matchesWildcard(extractedNS, providedNS string) bool {
     if strings.HasPrefix(providedNS, "*.") {
         suffix := strings.TrimPrefix(providedNS, "*.")
         match := strings.HasSuffix(extractedNS, suffix)
-        fmt.Printf("Matching extracted NS %s against wildcard NS %s: %v\n", extractedNS, providedNS, match) // Debug info
         return match
     }
     match := extractedNS == providedNS
-    fmt.Printf("Exact match check: %s == %s: %v\n", extractedNS, providedNS, match) // Debug info
     return match
 }
 
 // Function to read domains from the file provided in the command-line argument
 func readDomainsFromFile(filePath string) ([]string, error) {
-    fmt.Printf("Reading domains from file: %s\n", filePath) // Debug info
     file, err := os.Open(filePath)
     if err != nil {
         return nil, fmt.Errorf("error opening file: %v", err) // More descriptive error
@@ -99,7 +89,6 @@ func readDomainsFromFile(filePath string) ([]string, error) {
         return nil, fmt.Errorf("error reading file: %v", err) // More descriptive error
     }
 
-    fmt.Printf("Domains read from file: %v\n", domains) // Debug info
     return domains, nil
 }
 

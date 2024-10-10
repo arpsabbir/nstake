@@ -121,10 +121,10 @@ func main() {
 
     // Provided nameservers array including wildcard and exact match examples
     providedNameservers := []string{
-        "*.example.com.",
-        "*.iana-servers.net.",  // Example wildcard nameserver
-        "ns1.orangehost.com.",   // Exact match example
-        "ns2.orangehost.com.",   // Another exact match example
+        "*.orangehost.com.",
+                                  // Example wildcard nameserver
+                                 // Exact match example
+                                 // Another exact match example
     }
 
     // Read the list of domains from the specified file

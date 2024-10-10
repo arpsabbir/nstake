@@ -10,17 +10,20 @@ import (
 
 // Function to run the 'dig' command and extract nameservers
 func getNameservers(domain string) ([]string, error) {
+    fmt.Printf("Running dig command for NS records on domain: %s\n", domain) // Debug info
     cmd := exec.Command("dig", domain, "NS", "+short")
     output, err := cmd.Output()
     if err != nil {
         return nil, err
     }
     nameservers := strings.Split(strings.TrimSpace(string(output)), "\n")
+    fmt.Printf("Extracted nameservers for domain %s: %v\n", domain, nameservers) // Debug info
     return nameservers, nil
 }
 
 // Function to resolve domain against a specific nameserver and capture status messages
 func resolveAgainstNameserver(domain, nameserver string) (string, error) {
+    fmt.Printf("Resolving domain %s against nameserver %s...\n", domain, nameserver) // Debug info
     cmd := exec.Command("dig", "@"+nameserver, domain)
     output, err := cmd.Output()
     if err != nil {
@@ -35,20 +38,29 @@ func resolveAgainstNameserver(domain, nameserver string) (string, error) {
 
 // Function to check if the output contains SERVFAIL or REFUSED
 func checkForErrors(output string) bool {
-    return strings.Contains(output, "SERVFAIL") || strings.Contains(output, "REFUSED")
+    hasError := strings.Contains(output, "SERVFAIL") || strings.Contains(output, "REFUSED")
+    if hasError {
+        fmt.Println("Error detected: SERVFAIL or REFUSED found in output.") // Debug info
+    }
+    return hasError
 }
 
 // Function to check if the extracted nameserver matches a wildcard nameserver
 func matchesWildcard(extractedNS, providedNS string) bool {
     if strings.HasPrefix(providedNS, "*.") {
         suffix := strings.TrimPrefix(providedNS, "*.")
-        return strings.HasSuffix(extractedNS, suffix)
+        match := strings.HasSuffix(extractedNS, suffix)
+        fmt.Printf("Matching extracted NS %s against wildcard NS %s: %v\n", extractedNS, providedNS, match) // Debug info
+        return match
     }
-    return extractedNS == providedNS
+    match := extractedNS == providedNS
+    fmt.Printf("Exact match check: %s == %s: %v\n", extractedNS, providedNS, match) // Debug info
+    return match
 }
 
 // Function to read domains from the file provided in the command-line argument
 func readDomainsFromFile(filePath string) ([]string, error) {
+    fmt.Printf("Reading domains from file: %s\n", filePath) // Debug info
     file, err := os.Open(filePath)
     if err != nil {
         return nil, err
@@ -65,24 +77,24 @@ func readDomainsFromFile(filePath string) ([]string, error) {
         return nil, err
     }
 
+    fmt.Printf("Domains read from file: %v\n", domains) // Debug info
     return domains, nil
 }
 
 // Function to identify if a nameserver belongs to a known provider
 func getDNSProvider(nameserver string) string {
+    provider := "Unknown"
     if strings.Contains(nameserver, "amazonaws.com") {
-        return "AWS Route 53"
+        provider = "AWS Route 53"
+    } else if strings.Contains(nameserver, "cloudflare.com") {
+        provider = "Cloudflare"
+    } else if strings.Contains(nameserver, "google.com") {
+        provider = "Google Cloud DNS"
+    } else if strings.Contains(nameserver, "azure-dns.com") {
+        provider = "Azure DNS"
     }
-    if strings.Contains(nameserver, "cloudflare.com") {
-        return "Cloudflare"
-    }
-    if strings.Contains(nameserver, "google.com") {
-        return "Google Cloud DNS"
-    }
-    if strings.Contains(nameserver, "azure-dns.com") {
-        return "Azure DNS"
-    }
-    return "Unknown"
+    fmt.Printf("Identified provider for nameserver %s: %s\n", nameserver, provider) // Debug info
+    return provider
 }
 
 func main() {
@@ -98,8 +110,8 @@ func main() {
     providedNameservers := []string{
         "*.example.com.",
         "*.iana-servers.net.",  // Example wildcard nameserver
-        "ns1.orangehost.com.",
-        "ns2.orangehost.com.",// Exact match example
+        "ns1.orangehost.com.",   // Exact match example
+        "ns2.orangehost.com.",   // Another exact match example
     }
 
     // Read the list of domains from the specified file

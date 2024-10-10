@@ -105,6 +105,8 @@ func getDNSProvider(nameserver string) string {
         provider = "Google Cloud DNS"
     } else if strings.Contains(nameserver, "azure-dns.com") {
         provider = "Azure DNS"
+    } else if strings.Contains(nameserver, "orangehost.com") {
+        provider = "orangehost DNS"
     }
     fmt.Printf("Identified provider for nameserver %s: %s\n", nameserver, provider) // Debug info
     return provider

@@ -127,6 +127,20 @@ func getDNSProvider(nameserver string) string {
         provider = "domaindiscover.com DNS"
     } else if strings.Contains(nameserver, "yahoo.com") {
         provider = "yahoo.com DNS"
+    } else if strings.Contains(nameserver, "mythic-beasts.com") {
+        provider = "mythic-beasts.com DNS"
+    } else if strings.Contains(nameserver, "domaincontrol.com") {
+        provider = "domaincontrol.com DNS"
+    } else if strings.Contains(nameserver, "illinois.net") {
+        provider = "hostmaster.com DNS"
+    } else if strings.Contains(nameserver, "transip.nl") {
+        provider = "transip.nl DNS"
+    } else if strings.Contains(nameserver, "transip.eu") {
+        provider = "transip.eu DNS"
+    } else if strings.Contains(nameserver, "transip.net") {
+        provider = "transip.net DNS"
+    } else if strings.Contains(nameserver, "akam.net") {
+        provider = "akam.net DNS"
     }
     return provider
 }
@@ -158,6 +172,13 @@ func main() {
         "*.name.com.",
         "*.domaindiscover.com.",
         "*.yahoo.com.",
+        "*.mythic-beasts.com.",
+        "*.domaincontrol.com.",
+        "*.illinois.net.",
+        "*.transip.nl.",
+        "*.transip.eu.",
+        "*.transip.net.",
+        "*.akam.net.",
 
     }
 

@@ -143,6 +143,8 @@ func getDNSProvider(nameserver string) string {
         provider = "akam.net DNS"
     } else if strings.Contains(nameserver, "orangehost.com") {
         provider = "orangehost.com DNS"
+    } else if strings.Contains(nameserver, "oar.net") {
+        provider = "oar.net DNS"
     }
     return provider
 }
@@ -182,6 +184,7 @@ func main() {
         "*.transip.net.",
         "*.akam.net.",
         "*.orangehost.com.",
+        "*.oar.net.",
 
     }
 

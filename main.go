@@ -95,16 +95,39 @@ func readDomainsFromFile(filePath string) ([]string, error) {
 // Function to identify if a nameserver belongs to a known provider
 func getDNSProvider(nameserver string) string {
     provider := "Unknown"
-    if strings.Contains(nameserver, "amazonaws.com") {
-        provider = "AWS Route 53"
-    } else if strings.Contains(nameserver, "cloudflare.com") {
-        provider = "Cloudflare"
-    } else if strings.Contains(nameserver, "google.com") {
-        provider = "Google Cloud DNS"
-    } else if strings.Contains(nameserver, "orangehost.com") {
-        provider = "Orange DNS"
+    if strings.Contains(nameserver, "azure-dns.com") {
+        provider = "Azure (Microsoft)"
+    } else if strings.Contains(nameserver, "azure-dns.net") {
+        provider = "Azure (Microsoft)"
+    } else if strings.Contains(nameserver, "azure-dns.org") {
+        provider = "Azure (Microsoft)"
+    } else if strings.Contains(nameserver, "azure-dns.info") {
+        provider = "Azure (Microsoft)"
+    } else if strings.Contains(nameserver, "000Domains") {
+        provider = "000Domains DNS"
+    } else if strings.Contains(nameserver, "digitalocean.com") {
+        provider = "Digital Ocean DNS"
+    } else if strings.Contains(nameserver, "dnsmadeeasy.com") {
+        provider = "DNSMadeEasy DNS"
+    } else if strings.Contains(nameserver, "dnsimple.com") {
+        provider = "DNSimple DNS"
+    } else if strings.Contains(nameserver, "domain.com") {
+        provider = "domain DNS"
+    } else if strings.Contains(nameserver, "googledomains.com") {
+        provider = "googledomains Cloud DNS"
+    } else if strings.Contains(nameserver, "he.net") {
+        provider = "Hurricane Electric DNS"
+    } else if strings.Contains(nameserver, "inode.com") {
+        provider = "Linode DNS"
+    } else if strings.Contains(nameserver, "mydomain.com") {
+        provider = "Mydomain DNS"
+    } else if strings.Contains(nameserver, "name.com") {
+        provider = "name.com DNS"
+    } else if strings.Contains(nameserver, "domaindiscover.com") {
+        provider = "domaindiscover.com DNS"
+    } else if strings.Contains(nameserver, "yahoo.com") {
+        provider = "yahoo.com DNS"
     }
-    fmt.Printf("Identified provider for nameserver %s: %s\n", nameserver, provider) // Debug info
     return provider
 }
 
@@ -119,10 +142,23 @@ func main() {
 
     // Provided nameservers array including wildcard and exact match examples
     providedNameservers := []string{
-        "*.orangehost.com.",
-        "*.orangehost.net.",  // Example wildcard nameserver
-        "ns1.orangehost.com.",   // Exact match example
-        "ns2.orangehost.com.",   // Another exact match example
+        "*.azure-dns.com.",
+        "*.azure-dns.net.",
+        "*.azure-dns.org.",
+        "*.azure-dns.info.",
+        "*.000domains.com.",
+        "*.digitalocean.com.",
+        "*.dnsmadeeasy.com.",
+        "*.dnsimple.com.",
+        "*.domain.com.",
+        "*.googledomains.com.",
+        "*.he.net.",
+        "*.inode.com.",
+        "*.mydomain.com.",
+        "*.name.com.",
+        "*.domaindiscover.com.",
+        "*.yahoo.com.",
+
     }
 
     // Read the list of domains from the specified file

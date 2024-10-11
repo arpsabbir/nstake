@@ -130,7 +130,7 @@ func getDNSProvider(nameserver string) string {
     } else if strings.Contains(nameserver, "mythic-beasts.com") {
         provider = "mythic-beasts.com DNS"
     } else if strings.Contains(nameserver, "domaincontrol.com") {
-        provider = "domaincontrol.com DNS"
+        provider = "Godaddy DNS"
     } else if strings.Contains(nameserver, "illinois.net") {
         provider = "hostmaster.com DNS"
     } else if strings.Contains(nameserver, "transip.nl") {
